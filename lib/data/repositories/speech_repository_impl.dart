@@ -1,11 +1,11 @@
 import '../../domain/entities/pronunciation_assessment.dart';
 import '../../domain/repositories/speech_repository.dart';
-import '../services/azure_speech_service.dart';
+import '../services/speech_assessment_service.dart';
 
 class SpeechRepositoryImpl implements SpeechRepository {
   SpeechRepositoryImpl({required this.speechService});
 
-  final AzureSpeechService speechService;
+  final SpeechAssessmentService speechService;
 
   @override
   Future<PronunciationAssessment> assessPronunciation({

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'word_error.dart';
 
 enum SessionMode { text, freeSpeech }
 
@@ -16,6 +17,8 @@ class Session extends Equatable {
     this.fluencyScore = 0,
     this.completenessScore = 0,
     this.prosodyScore = 0,
+    this.wordErrors = const [],
+    this.wordsPerMinute = 0.0,
   });
 
   final String id;
@@ -30,6 +33,8 @@ class Session extends Equatable {
   final String audioFilePath;
   final int durationMs;
   final DateTime createdAt;
+  final List<WordError> wordErrors;
+  final double wordsPerMinute;
 
   String get formattedDuration {
     final seconds = (durationMs / 1000).round();

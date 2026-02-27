@@ -1,9 +1,8 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../providers/assessment_provider.dart';
 import '../../widgets/waveform_painter.dart';
 import '../result/result_screen.dart';
@@ -142,6 +141,23 @@ class _FreeSpeechScreenState extends ConsumerState<FreeSpeechScreen>
             ),
 
             const SizedBox(height: AppConstants.spacing24),
+
+            // Countdown timer
+            if (isRecording) ...[
+              Builder(builder: (context) {
+                final elapsed = assessmentState.recordingDuration.inSeconds;
+                final remaining = AppConstants.maxRecordingDurationSeconds - elapsed;
+                final isWarning = remaining <= 10;
+                return Text(
+                  '${remaining}s',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: isWarning ? AppColors.scorePoor : AppColors.textSecondary,
+                    fontWeight: isWarning ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                );
+              }),
+              const SizedBox(height: AppConstants.spacing8),
+            ],
 
             // Status text
             Text(

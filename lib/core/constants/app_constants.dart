@@ -8,12 +8,11 @@ abstract final class AppConstants {
   static const int audioBitDepth = 16;
   static const int audioChannels = 1;
 
-  // Groq
-  static const String groqEndpoint = 'https://api.groq.com/openai/v1/chat/completions';
-  static const String groqModel = 'openai/oss-120b';
+  // Azure AI Foundry (Phi-3)
+  static const String defaultAiModel = 'llama-3.3-70b-versatile';
 
   // Audio
-  static const int maxRecordingDurationSeconds = 300; // 5 minutes
+  static const int maxRecordingDurationSeconds = 120; // 2 minutes, processed in 30s chunks
   static const String audioFileExtension = '.wav';
 
   // UI
@@ -35,6 +34,11 @@ abstract final class AppConstants {
   // Secure Storage Keys
   static const String keyAzureSubscription = 'azure_subscription_key';
   static const String keyAzureRegion = 'azure_region';
-  static const String keyGroqApiKey = 'groq_api_key';
   static const String keyLanguage = 'language_code';
+  static const String keySpeechSuperAppKey = 'speechsuper_app_key';
+  static const String keySpeechSuperSecretKey = 'speechsuper_secret_key';
+  static const String keySpeechApiProvider = 'speech_api_provider';
+  static const String keyAzureFoundryEndpoint = 'azure_foundry_endpoint';
+  static const String keyAzureFoundryKey = 'azure_foundry_key';
+  static const String keyAzureFoundryModel = 'azure_foundry_model';
 }

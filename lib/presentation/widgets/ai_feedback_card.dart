@@ -9,8 +9,25 @@ class AiFeedbackCard extends StatelessWidget {
 
   final AiFeedback feedback;
 
+  bool get _isEmpty =>
+      feedback.summaryFeedback.isEmpty &&
+      feedback.topIssues.isEmpty &&
+      feedback.targetSounds.isEmpty &&
+      feedback.stressPatternAdvice.isEmpty &&
+      feedback.fluencyAdvice.isEmpty &&
+      feedback.practiceExercises.isEmpty &&
+      feedback.nativeLikeRewrite.isEmpty;
+
   @override
   Widget build(BuildContext context) {
+    if (_isEmpty) {
+      return Text(
+        'The AI returned a response but no feedback could be extracted. '
+        'Try again or check that your model supports JSON output.',
+        style: AppTypography.bodySmall,
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

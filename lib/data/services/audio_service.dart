@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -27,6 +28,23 @@ class AudioService {
       _player.playingStream;
 
   Future<void> initialize() async {
+    await Permission.microphone.request();
+
+    // Force playback through the loud speaker instead of the ear speaker.
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions:
+          AVAudioSessionCategoryOptions.defaultToSpeaker |
+          AVAudioSessionCategoryOptions.allowBluetooth,
+      avAudioSessionMode: AVAudioSessionMode.defaultMode,
+      androidAudioAttributes: AndroidAudioAttributes(
+        contentType: AndroidAudioContentType.speech,
+        usage: AndroidAudioUsage.media,
+      ),
+      androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
+    ));
+
     await _recorder.openRecorder();
     await _recorder.setSubscriptionDuration(
       const Duration(milliseconds: 100),

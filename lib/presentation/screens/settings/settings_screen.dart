@@ -14,9 +14,15 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late TextEditingController _azureKeyController;
-  late TextEditingController _groqKeyController;
+  late TextEditingController _ssAppKeyController;
+  late TextEditingController _ssSecretKeyController;
+  late TextEditingController _foundryEndpointController;
+  late TextEditingController _foundryKeyController;
+  late TextEditingController _foundryModelController;
   bool _showAzureKey = false;
-  bool _showGroqKey = false;
+  bool _showSsAppKey = false;
+  bool _showSsSecretKey = false;
+  bool _showFoundryKey = false;
 
   static const _regions = [
     'eastus',
@@ -60,13 +66,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     super.initState();
     final settings = ref.read(settingsProvider);
     _azureKeyController = TextEditingController(text: settings.azureKey);
-    _groqKeyController = TextEditingController(text: settings.groqKey);
+    _ssAppKeyController =
+        TextEditingController(text: settings.speechSuperAppKey);
+    _ssSecretKeyController =
+        TextEditingController(text: settings.speechSuperSecretKey);
+    _foundryEndpointController =
+        TextEditingController(text: settings.azureFoundryEndpoint);
+    _foundryKeyController =
+        TextEditingController(text: settings.azureFoundryKey);
+    _foundryModelController =
+        TextEditingController(text: settings.azureFoundryModel);
   }
 
   @override
   void dispose() {
     _azureKeyController.dispose();
-    _groqKeyController.dispose();
+    _ssAppKeyController.dispose();
+    _ssSecretKeyController.dispose();
+    _foundryEndpointController.dispose();
+    _foundryKeyController.dispose();
+    _foundryModelController.dispose();
     super.dispose();
   }
 
@@ -86,16 +105,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(AppConstants.spacing24),
         children: [
-          // Azure Section
+          // ── Speech Engine Selector ──────────────────────────────
+          Text('Speech Engine', style: AppTypography.titleLarge),
+          const SizedBox(height: AppConstants.spacing12),
+          _ProviderToggle(
+            selected: settings.speechApiProvider,
+            onChanged: (p) => notifier.updateSpeechApiProvider(p),
+          ),
+          const SizedBox(height: AppConstants.spacing40),
+
+          // ── Azure Speech Service ────────────────────────────────
           Text('Azure Speech Service', style: AppTypography.titleLarge),
           const SizedBox(height: AppConstants.spacing4),
           Text(
-            'Required for pronunciation assessment.',
+            'Required when Azure is selected as speech engine.',
             style: AppTypography.bodySmall,
           ),
           const SizedBox(height: AppConstants.spacing16),
 
-          // API Key
           Text('Subscription Key', style: AppTypography.labelMedium),
           const SizedBox(height: AppConstants.spacing8),
           TextField(
@@ -118,7 +145,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           const SizedBox(height: AppConstants.spacing16),
 
-          // Region
           Text('Region', style: AppTypography.labelMedium),
           const SizedBox(height: AppConstants.spacing8),
           Container(
@@ -142,10 +168,75 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
 
+          const SizedBox(height: AppConstants.spacing12),
+          Text(
+            'Get a free key at portal.azure.com — 5 free hours/month.',
+            style: AppTypography.bodySmall,
+          ),
+
+          const SizedBox(height: AppConstants.spacing40),
+
+          // ── SpeechSuper ─────────────────────────────────────────
+          Text('SpeechSuper', style: AppTypography.titleLarge),
+          const SizedBox(height: AppConstants.spacing4),
+          Text(
+            'Required when SpeechSuper is selected as speech engine.',
+            style: AppTypography.bodySmall,
+          ),
           const SizedBox(height: AppConstants.spacing16),
 
-          // Language
-          Text('Language', style: AppTypography.labelMedium),
+          Text('App Key', style: AppTypography.labelMedium),
+          const SizedBox(height: AppConstants.spacing8),
+          TextField(
+            controller: _ssAppKeyController,
+            obscureText: !_showSsAppKey,
+            onChanged: (v) => notifier.updateSpeechSuperAppKey(v.trim()),
+            decoration: InputDecoration(
+              hintText: 'Enter your SpeechSuper App Key',
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _showSsAppKey ? Icons.visibility_off : Icons.visibility,
+                  size: 18,
+                  color: AppColors.textTertiary,
+                ),
+                onPressed: () =>
+                    setState(() => _showSsAppKey = !_showSsAppKey),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: AppConstants.spacing16),
+
+          Text('Secret Key', style: AppTypography.labelMedium),
+          const SizedBox(height: AppConstants.spacing8),
+          TextField(
+            controller: _ssSecretKeyController,
+            obscureText: !_showSsSecretKey,
+            onChanged: (v) => notifier.updateSpeechSuperSecretKey(v.trim()),
+            decoration: InputDecoration(
+              hintText: 'Enter your SpeechSuper Secret Key',
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _showSsSecretKey ? Icons.visibility_off : Icons.visibility,
+                  size: 18,
+                  color: AppColors.textTertiary,
+                ),
+                onPressed: () =>
+                    setState(() => _showSsSecretKey = !_showSsSecretKey),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: AppConstants.spacing12),
+          Text(
+            'Get keys at speechsuper.com.',
+            style: AppTypography.bodySmall,
+          ),
+
+          const SizedBox(height: AppConstants.spacing40),
+
+          // ── Language ────────────────────────────────────────────
+          Text('Language', style: AppTypography.titleLarge),
           const SizedBox(height: AppConstants.spacing8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -171,61 +262,91 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
 
-          const SizedBox(height: AppConstants.spacing12),
-
-          Text(
-            'Get a free key at portal.azure.com — 5 free hours/month.',
-            style: AppTypography.bodySmall,
-          ),
-
           const SizedBox(height: AppConstants.spacing40),
 
-          // Groq Section
-          Text('Groq AI Feedback', style: AppTypography.titleLarge),
+          // ── Azure AI Foundry ─────────────────────────────────────
+          Text('Azure AI Foundry', style: AppTypography.titleLarge),
           const SizedBox(height: AppConstants.spacing4),
           Text(
-            'Optional. Enables AI coaching feedback after assessment.',
+            'Optional. Enables AI coaching feedback (Phi-3) after assessment and pattern insights.',
             style: AppTypography.bodySmall,
           ),
+          const SizedBox(height: AppConstants.spacing16),
+
+          Text('Endpoint URL', style: AppTypography.labelMedium),
+          const SizedBox(height: AppConstants.spacing8),
+          TextField(
+            controller: _foundryEndpointController,
+            autocorrect: false,
+            textCapitalization: TextCapitalization.none,
+            onChanged: (v) => notifier.updateAzureFoundryEndpoint(v.trim()),
+            decoration: const InputDecoration(
+              hintText: 'https://api.groq.com/openai/v1/chat/completions',
+            ),
+          ),
+
           const SizedBox(height: AppConstants.spacing16),
 
           Text('API Key', style: AppTypography.labelMedium),
           const SizedBox(height: AppConstants.spacing8),
           TextField(
-            controller: _groqKeyController,
-            obscureText: !_showGroqKey,
-            onChanged: (v) => notifier.updateGroqKey(v.trim()),
+            controller: _foundryKeyController,
+            obscureText: !_showFoundryKey,
+            onChanged: (v) => notifier.updateAzureFoundryKey(v.trim()),
             decoration: InputDecoration(
-              hintText: 'Enter your Groq API key',
+              hintText: 'Enter your Azure AI Foundry key',
               suffixIcon: IconButton(
                 icon: Icon(
-                  _showGroqKey ? Icons.visibility_off : Icons.visibility,
+                  _showFoundryKey ? Icons.visibility_off : Icons.visibility,
                   size: 18,
                   color: AppColors.textTertiary,
                 ),
                 onPressed: () =>
-                    setState(() => _showGroqKey = !_showGroqKey),
+                    setState(() => _showFoundryKey = !_showFoundryKey),
               ),
+            ),
+          ),
+
+          const SizedBox(height: AppConstants.spacing16),
+
+          Text('Model', style: AppTypography.labelMedium),
+          const SizedBox(height: AppConstants.spacing8),
+          TextField(
+            controller: _foundryModelController,
+            autocorrect: false,
+            textCapitalization: TextCapitalization.none,
+            onChanged: (v) => notifier.updateAzureFoundryModel(v.trim()),
+            decoration: const InputDecoration(
+              hintText: 'llama-3.3-70b-versatile',
             ),
           ),
 
           const SizedBox(height: AppConstants.spacing12),
           Text(
-            'Get a free key at console.groq.com.',
+            'Works with Groq (free tier), GitHub Models, Azure AI Foundry, or any OpenAI-compatible endpoint.',
             style: AppTypography.bodySmall,
           ),
 
           const SizedBox(height: AppConstants.spacing48),
 
-          // Status
+          // ── Status ──────────────────────────────────────────────
           _StatusIndicator(
             label: 'Azure Speech',
             isConfigured: settings.isAzureConfigured,
+            isActive: settings.speechApiProvider == SpeechApiProvider.azure,
           ),
           const SizedBox(height: AppConstants.spacing8),
           _StatusIndicator(
-            label: 'Groq AI',
-            isConfigured: settings.isGroqConfigured,
+            label: 'SpeechSuper',
+            isConfigured: settings.isSpeechSuperConfigured,
+            isActive:
+                settings.speechApiProvider == SpeechApiProvider.speechsuper,
+          ),
+          const SizedBox(height: AppConstants.spacing8),
+          _StatusIndicator(
+            label: 'Azure AI Foundry',
+            isConfigured: settings.isAzureFoundryConfigured,
+            isActive: false,
           ),
 
           const SizedBox(height: AppConstants.spacing48),
@@ -235,14 +356,85 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 }
 
+class _ProviderToggle extends StatelessWidget {
+  const _ProviderToggle({
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final SpeechApiProvider selected;
+  final ValueChanged<SpeechApiProvider> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _ToggleChip(
+          label: 'Azure',
+          selected: selected == SpeechApiProvider.azure,
+          onTap: () => onChanged(SpeechApiProvider.azure),
+        ),
+        const SizedBox(width: AppConstants.spacing8),
+        _ToggleChip(
+          label: 'SpeechSuper',
+          selected: selected == SpeechApiProvider.speechsuper,
+          onTap: () => onChanged(SpeechApiProvider.speechsuper),
+        ),
+      ],
+    );
+  }
+}
+
+class _ToggleChip extends StatelessWidget {
+  const _ToggleChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacing16,
+          vertical: AppConstants.spacing8,
+        ),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.accent : AppColors.surfaceAlt,
+          borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+          border: Border.all(
+            color: selected ? AppColors.accent : AppColors.border,
+          ),
+        ),
+        child: Text(
+          label,
+          style: AppTypography.labelMedium.copyWith(
+            color: selected ? AppColors.white : AppColors.textSecondary,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StatusIndicator extends StatelessWidget {
   const _StatusIndicator({
     required this.label,
     required this.isConfigured,
+    required this.isActive,
   });
 
   final String label;
   final bool isConfigured;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
@@ -265,6 +457,23 @@ class _StatusIndicator extends StatelessWidget {
                 : AppColors.textTertiary,
           ),
         ),
+        if (isActive) ...[
+          const SizedBox(width: AppConstants.spacing8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              'Active',
+              style: AppTypography.labelMedium.copyWith(
+                fontSize: 10,
+                color: AppColors.accent,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

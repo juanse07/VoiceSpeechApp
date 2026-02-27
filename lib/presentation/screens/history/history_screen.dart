@@ -7,6 +7,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/score_utils.dart';
 import '../../../domain/entities/session.dart';
 import '../../providers/history_provider.dart';
+import '../patterns/patterns_screen.dart';
 
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
@@ -24,17 +25,34 @@ class HistoryScreen extends ConsumerWidget {
         ),
         actions: [
           historyAsync.maybeWhen(
-            data: (sessions) => sessions.isNotEmpty
-                ? TextButton(
-                    onPressed: () => _confirmClear(context, ref),
-                    child: Text(
-                      'Clear',
-                      style: AppTypography.labelMedium.copyWith(
-                        color: AppColors.textSecondary,
+            data: (sessions) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (sessions.length >= 3)
+                    IconButton(
+                      icon: const Icon(Icons.insights_rounded, size: 22),
+                      tooltip: 'Insights',
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PatternsScreen(),
+                        ),
                       ),
                     ),
-                  )
-                : const SizedBox.shrink(),
+                  if (sessions.isNotEmpty)
+                    TextButton(
+                      onPressed: () => _confirmClear(context, ref),
+                      child: Text(
+                        'Clear',
+                        style: AppTypography.labelMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
             orElse: () => const SizedBox.shrink(),
           ),
         ],

@@ -4,6 +4,13 @@ import '../../core/theme/app_typography.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/utils/score_utils.dart';
 
+const _descriptions = {
+  'Accuracy': 'How closely your pronunciation matches a native speaker, scored at the phoneme level.',
+  'Fluency': 'How smoothly you speak — measures natural pauses and flow between words.',
+  'Complete': 'The percentage of reference words you actually pronounced.',
+  'Prosody': 'How natural your speech sounds — rhythm, stress, intonation, and speaking speed.',
+};
+
 class ScoreBreakdown extends StatelessWidget {
   const ScoreBreakdown({
     super.key,
@@ -48,6 +55,23 @@ class _ScoreItem extends StatelessWidget {
   final String label;
   final double score;
 
+  void _showInfo(BuildContext context) {
+    final description = _descriptions[label] ?? '';
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(label, style: AppTypography.titleMedium),
+        content: Text(description, style: AppTypography.bodyMedium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -60,10 +84,25 @@ class _ScoreItem extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppConstants.spacing4),
-          Text(
-            label,
-            style: AppTypography.labelMedium.copyWith(
-              color: AppColors.textSecondary,
+          GestureDetector(
+            onTap: () => _showInfo(context),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(width: 3),
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 12,
+                  color: AppColors.textTertiary,
+                ),
+              ],
             ),
           ),
         ],

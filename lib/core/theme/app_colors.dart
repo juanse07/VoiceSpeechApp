@@ -29,4 +29,12 @@ abstract final class AppColors {
   static const Color wordCorrect = Color(0xFF2D8A4E);
   static const Color wordNeedsWork = Color(0xFFFF8C42);
   static const Color wordIncorrect = Color(0xFFD64045);
+
+  // Error type badge colors
+  static const Color errorOmission = Color(0xFF9E9E9E);
+  static const Color errorInsertion = Color(0xFF7B5EA7);
+  static const Color errorMispronunciation = Color(0xFFD64045);
+
+  // Prosody
+  static const Color prosodyWarning = Color(0xFFE8A020);
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/entities/session.dart';
+import '../../domain/entities/word_error.dart';
 import '../../domain/repositories/history_repository.dart';
 
 class HistoryRepositoryImpl implements HistoryRepository {
@@ -13,7 +14,7 @@ class HistoryRepositoryImpl implements HistoryRepository {
   @override
   Future<List<Session>> getAllSessions() async {
     final raw = await _storage.read(key: _key);
-    if (raw == null) return [];
+    if (raw == null || raw.isEmpty) return [];
 
     final list = jsonDecode(raw) as List;
     return list.map((e) => _sessionFromJson(e as Map<String, dynamic>)).toList()
@@ -57,6 +58,8 @@ class HistoryRepositoryImpl implements HistoryRepository {
         'audioFilePath': s.audioFilePath,
         'durationMs': s.durationMs,
         'createdAt': s.createdAt.toIso8601String(),
+        'wordErrors': s.wordErrors.map((e) => e.toJson()).toList(),
+        'wordsPerMinute': s.wordsPerMinute,
       };
 
   Session _sessionFromJson(Map<String, dynamic> j) => Session(
@@ -72,5 +75,10 @@ class HistoryRepositoryImpl implements HistoryRepository {
         audioFilePath: j['audioFilePath'] as String,
         durationMs: j['durationMs'] as int,
         createdAt: DateTime.parse(j['createdAt'] as String),
+        wordErrors: (j['wordErrors'] as List<dynamic>?)
+                ?.map((e) => WordError.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [],
+        wordsPerMinute: (j['wordsPerMinute'] as num?)?.toDouble() ?? 0.0,
       );
 }
